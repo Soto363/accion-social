@@ -1,0 +1,132 @@
+-- Crear base de datos (opcional si ya existe)
+CREATE DATABASE inventario_cromados;
+\c inventario_cromados
+
+-- Tabla cliente
+CREATE TABLE cliente (
+    id_cliente SERIAL PRIMARY KEY,
+    cedula VARCHAR(20) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    email VARCHAR(100),
+    direccion VARCHAR(255)
+);
+
+-- Tabla administrador
+CREATE TABLE administrador (
+    id_administrador SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    usuario VARCHAR(50) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL
+);
+
+-- Tabla categoria
+CREATE TABLE categoria (
+    id_categoria SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
+
+-- Tabla producto
+CREATE TABLE producto (
+    id_producto SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255),
+    precio NUMERIC(10,2),
+    id_categoria INT NOT NULL,
+    FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria) ON DELETE RESTRICT
+);
+
+-- Estados de orden de trabajo
+CREATE TABLE estado_orden_trabajo (
+    id_estado SERIAL PRIMARY KEY,
+    nombre_estado VARCHAR(30) UNIQUE NOT NULL
+);
+
+-- Estados de orden de servicio
+CREATE TABLE estado_orden_servicio (
+    id_estado SERIAL PRIMARY KEY,
+    nombre_estado VARCHAR(30) UNIQUE NOT NULL
+);
+
+-- Tabla orden_trabajo
+CREATE TABLE orden_trabajo (
+    id_orden_trabajo SERIAL PRIMARY KEY,
+    fecha_ingreso TIMESTAMP NOT NULL,
+    fecha_entrega_estimada TIMESTAMP,
+    id_estado INT NOT NULL,
+    id_cliente INT NOT NULL,
+    id_producto INT NOT NULL,
+    FOREIGN KEY (id_estado) REFERENCES estado_orden_trabajo(id_estado) ON DELETE RESTRICT,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto) ON DELETE RESTRICT
+);
+
+-- Tabla transporte (si decides usarla separada)
+CREATE TABLE transporte (
+    id_transporte SERIAL PRIMARY KEY,
+    fecha_envio TIMESTAMP,
+    fecha_retorno TIMESTAMP,
+    responsable_envio VARCHAR(100),
+    destino VARCHAR(100)
+);
+
+-- Tabla orden_servicio
+CREATE TABLE orden_servicio (
+    id_orden_servicio SERIAL PRIMARY KEY,
+    fecha_recepcion TIMESTAMP,
+    fecha_envio_pasto TIMESTAMP,
+    fecha_retorno_ipiales TIMESTAMP,
+    fecha_entrega_cliente TIMESTAMP,
+    id_estado INT NOT NULL,
+    id_orden_trabajo INT NOT NULL,
+    id_producto INT NOT NULL,
+    id_transporte INT,
+    FOREIGN KEY (id_estado) REFERENCES estado_orden_servicio(id_estado) ON DELETE RESTRICT,
+    FOREIGN KEY (id_orden_trabajo) REFERENCES orden_trabajo(id_orden_trabajo) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto) ON DELETE RESTRICT,
+    FOREIGN KEY (id_transporte) REFERENCES transporte(id_transporte) ON DELETE SET NULL
+);
+
+-- Tabla factura
+CREATE TABLE factura (
+    id_factura SERIAL PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    id_administrador INT NOT NULL,
+    fecha_remision TIMESTAMP,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) ON DELETE CASCADE,
+    FOREIGN KEY (id_administrador) REFERENCES administrador(id_administrador) ON DELETE SET NULL
+);
+
+-- Tabla detalle_factura
+CREATE TABLE detalle_factura (
+    id_detalle_factura SERIAL PRIMARY KEY,
+    id_factura INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario NUMERIC(10,2) NOT NULL,
+    FOREIGN KEY (id_factura) REFERENCES factura(id_factura) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto) ON DELETE RESTRICT
+);
+
+select * from cliente; 
+
+-- Insertar estados iniciales
+INSERT INTO estado_orden_trabajo (nombre_estado) VALUES 
+('Recibido'), ('En Proceso'), ('Terminado'), ('Entregado');
+
+INSERT INTO estado_orden_servicio (nombre_estado) VALUES 
+('Recibido'), ('Enviado a Pasto'), ('Retornado de Pasto'), ('Entregado al Cliente');
+
+-- Insertar categorías básicas
+INSERT INTO categoria (nombre) VALUES 
+('Cromados'), ('Pulidos'), ('Rectificados'), ('Soldaduras');
+
+-- Insertar un administrador inicial
+INSERT INTO administrador (nombre, email, usuario, contrasena) VALUES 
+('Admin Principal', 'admin@cromados.com', 'admin', 'pbkdf2:sha256:260000$...');
+
+INSERT INTO administrador (nombre, email, usuario, contrasena) VALUES ('Juan', 'juan@cromados.com', 'juanadmin', '123456789' );
+
+select * from administrador;
+select * from categoria;

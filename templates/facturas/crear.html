@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Factura{% endblock %}
+{% block header %}Nueva Factura{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="id_cliente" class="form-label">Cliente</label>
+                    <select class="form-select" id="id_cliente" name="id_cliente" required>
+                        <option value="">Seleccione un cliente</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.id_cliente }}">{{ cliente.nombre }} - {{ cliente.cedula }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Fecha</label>
+                    <input type="text" class="form-control" value="{{ now.strftime('%d/%m/%Y') }}" readonly>
+                </div>
+            </div>
+
+            <h5 class="mb-3">Productos</h5>
+            <div id="productos-container">
+                <div class="row producto-item mb-3">
+                    <div class="col-md-5">
+                        <select class="form-select producto-select" name="productos[]" required>
+                            <option value="">Seleccione un producto</option>
+                            {% for producto in productos %}
+                            <option value="{{ producto.id_producto }}" data-precio="{{ producto.precio }}">{{ producto.nombre }} - ${{ producto.precio }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control cantidad" name="cantidades[]" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control precio" readonly>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm remove-producto">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="agregar-producto" class="btn btn-secondary btn-sm mb-4">
+                <i class="bi bi-plus-circle"></i> Agregar Producto
+            </button>
+
+            <div class="row">
+                <div class="col-md-4 offset-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Factura</h5>
+                            <h3 class="text-end" id="total-factura">$0.00</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Generar Factura</button>
+                <a href="{{ url_for('facturas') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar nuevo producto
+    document.getElementById('agregar-producto').addEventListener('click', function() {
+        const container = document.getElementById('productos-container');
+        const newItem = container.firstElementChild.cloneNode(true);
+        newItem.querySelector('.producto-select').value = '';
+        newItem.querySelector('.cantidad').value = 1;
+        newItem.querySelector('.precio').value = '';
+        container.appendChild(newItem);
+        addEventListenersToItem(newItem);
+    });
+
+    // Eliminar producto
+    function addEventListenersToItem(item) {
+        item.querySelector('.remove-producto').addEventListener('click', function() {
+            if (document.querySelectorAll('.producto-item').length > 1) {
+                item.remove();
+                calcularTotal();
+            } else {
+                alert('Debe haber al menos un producto en la factura');
+            }
+        });
+
+        // Calcular precio cuando cambia el producto
+        item.querySelector('.producto-select').addEventListener('change', function() {
+            const precio = this.options[this.selectedIndex].dataset.precio;
+            const cantidad = item.querySelector('.cantidad').value;
+            item.querySelector('.precio').value = '$' + (precio * cantidad).toFixed(2);
+            calcularTotal();
+        });
+
+        // Calcular precio cuando cambia la cantidad
+        item.querySelector('.cantidad').addEventListener('change', function() {
+            const select = item.querySelector('.producto-select');
+            if (select.value) {
+                const precio = select.options[select.selectedIndex].dataset.precio;
+                item.querySelector('.precio').value = '$' + (precio * this.value).toFixed(2);
+                calcularTotal();
+            }
+        });
+    }
+
+    // Calcular total de la factura
+    function calcularTotal() {
+        let total = 0;
+        document.querySelectorAll('.producto-item').forEach(item => {
+            const select = item.querySelector('.producto-select');
+            if (select.value) {
+                const precio = parseFloat(select.options[select.selectedIndex].dataset.precio);
+                const cantidad = parseFloat(item.querySelector('.cantidad').value);
+                total += precio * cantidad;
+            }
+        });
+        document.getElementById('total-factura').textContent = '$' + total.toFixed(2);
+    }
+
+    // Agregar eventos al primer item
+    addEventListenersToItem(document.querySelector('.producto-item'));
+});
+</script>
+{% endblock %}
+{% endblock %}

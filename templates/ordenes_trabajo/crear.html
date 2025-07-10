@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0"><i class="bi bi-file-earmark-plus me-2"></i> Nueva Orden de Trabajo</h4>
+        </div>
+        
+        <div class="card-body">
+            <form method="POST" class="needs-validation" novalidate>
+                <!-- Sección Cliente -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3"><i class="bi bi-person-fill me-2"></i> Datos del Cliente</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="cliente" class="form-label fw-semibold">Seleccionar Cliente</label>
+                            <select name="cliente" id="cliente" class="form-select" required>
+                                <option value="" selected disabled>-- Seleccione un cliente --</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id_cliente }}">
+                                    {{ cliente.nombre }} ({{ cliente.cedula }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor seleccione un cliente
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Producto -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3"><i class="bi bi-box-seam me-2"></i> Datos del Producto</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="producto" class="form-label fw-semibold">Seleccionar Producto</label>
+                            <select name="producto" id="producto" class="form-select" required>
+                                <option value="" selected disabled>-- Seleccione un producto --</option>
+                                {% for producto in productos %}
+                                <option value="{{ producto.id_producto }}">
+                                    {{ producto.nombre }} - ${{ "{:,.0f}".format(producto.precio) }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor seleccione un producto
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Fecha de Entrega -->
+                <div class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="fecha_entrega" class="form-label fw-semibold">Fecha Estimada de Entrega*</label>
+                            <input type="date" name="fecha_entrega" id="fecha_entrega" 
+                                   class="form-control" min="{{ hoy }}" required>
+                            <small class="text-muted">Seleccione una fecha posterior a hoy</small>
+                            <div class="invalid-feedback">
+                                Por favor ingrese una fecha válida
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Observaciones -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3"><i class="bi bi-card-text me-2"></i> Observaciones</h5>
+                    <textarea name="observaciones" id="observaciones" 
+                              class="form-control" rows="4"
+                              placeholder="Describa los detalles del trabajo a realizar..."></textarea>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('ordenes_trabajo') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i> Volver al listado
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-2"></i> Guardar Orden
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .card-header {
+        border-radius: 0 !important;
+    }
+    .form-control, .form-select {
+        border-radius: 5px;
+        padding: 10px 15px;
+    }
+    textarea.form-control {
+        min-height: 120px;
+    }
+    .btn {
+        border-radius: 5px;
+        padding: 8px 20px;
+        font-weight: 500;
+    }
+    .invalid-feedback {
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    // Establecer fecha mínima como hoy
+    document.getElementById('fecha_entrega').min = new Date().toISOString().split("T")[0];
+    
+    // Validación al enviar
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+    
+    // Mejorar visualización de selects
+    document.querySelectorAll('select').forEach(select => {
+        select.addEventListener('change', function() {
+            if (this.value) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

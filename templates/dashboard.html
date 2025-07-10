@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Panel de Control</h2>
+    
+    <div class="row mt-4">
+        <!-- Tarjeta de Órdenes de Trabajo -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Órdenes de Trabajo</h5>
+                    <p class="card-text">Gestiona todas las órdenes de trabajo del sistema</p>
+                    <a href="{{ url_for('ordenes_trabajo') }}" class="btn btn-light">Acceder</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta de Clientes -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Clientes</h5>
+                    <p class="card-text">Administra tu lista de clientes</p>
+                    <a href="{{ url_for('clientes') }}" class="btn btn-light">Acceder</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta de Productos -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Productos</h5>
+                    <p class="card-text">Administra tu inventario de productos</p>
+                    <a href="{{ url_for('productos') }}" class="btn btn-light">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de Órdenes Recientes -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Órdenes Recientes</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Producto</th>
+                            <th>Estado</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orden in ordenes_recientes %}
+                        <tr>
+                            <td>{{ orden.id_orden_trabajo }}</td>
+                            <td>{{ orden.cliente.nombre }}</td>
+                            <td>{{ orden.producto.nombre }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if orden.estado.nombre_estado == 'Completado' else 'warning' }}">
+                                    {{ orden.estado.nombre_estado }}
+                                </span>
+                            </td>
+                            <td>{{ orden.fecha_ingreso.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('detalle_orden_trabajo', id=orden.id_orden_trabajo) }}" class="btn btn-sm btn-primary">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay órdenes recientes</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end mt-3">
+                <a href="{{ url_for('ordenes_trabajo') }}" class="btn btn-primary">
+                    Ver todas las órdenes
+                </a>
+                <a href="{{ url_for('crear_orden_trabajo') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Nueva Orden
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Órdenes de Trabajo</h2>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="{{ url_for('ordenes_trabajo') }}">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select id="estado" name="estado" class="form-select">
+                            <option value="">Todos los estados</option>
+                            {% for estado in estados %}
+                            <option value="{{ estado.nombre_estado }}" {% if filtros.estado == estado.nombre_estado %}selected{% endif %}>
+                                {{ estado.nombre_estado }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cliente_id" class="form-label">Cliente</label>
+                        <select id="cliente_id" name="cliente_id" class="form-select">
+                            <option value="">Todos los clientes</option>
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.id_cliente }}" {% if filtros.cliente_id|string == cliente.id_cliente|string %}selected{% endif %}>
+                                {{ cliente.nombre }} ({{ cliente.cedula }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+                        <a href="{{ url_for('ordenes_trabajo') }}" class="btn btn-outline-secondary">Limpiar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de órdenes -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Listado de Órdenes</h5>
+            <a href="{{ url_for('crear_orden_trabajo') }}" class="btn btn-success btn-sm">
+                <i class="bi bi-plus-circle"></i> Nueva Orden
+            </a>
+        </div>
+        
+        <div class="card-body">
+            {% if ordenes.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Cliente</th>
+                            <th>Producto</th>
+                            <th>Estado</th>
+                            <th>Entrega Estimada</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orden in ordenes.items %}
+                        <tr>
+                            <td>{{ orden.id_orden_trabajo }}</td>
+                            <td>{{ orden.fecha_ingreso.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ orden.cliente.nombre }}</td>
+                            <td>{{ orden.producto.nombre }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if orden.estado.nombre_estado == 'Completado' else 'warning' }}">
+                                    {{ orden.estado.nombre_estado }}
+                                </span>
+                            </td>
+                            <td>{{ orden.fecha_entrega_estimada.strftime('%d/%m/%Y') if orden.fecha_entrega_estimada else '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('detalle_orden_trabajo', id=orden.id_orden_trabajo) }}" 
+                                   class="btn btn-sm btn-primary">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if ordenes.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" 
+                           href="{{ url_for('ordenes_trabajo', pagina=ordenes.prev_num, estado=filtros.estado, cliente_id=filtros.cliente_id) }}">
+                            Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in ordenes.iter_pages() %}
+                    <li class="page-item {% if num == ordenes.page %}active{% endif %}">
+                        <a class="page-link" 
+                           href="{{ url_for('ordenes_trabajo', pagina=num, estado=filtros.estado, cliente_id=filtros.cliente_id) }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if ordenes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" 
+                           href="{{ url_for('ordenes_trabajo', pagina=ordenes.next_num, estado=filtros.estado, cliente_id=filtros.cliente_id) }}">
+                            Siguiente
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% else %}
+            <div class="alert alert-info">No se encontraron órdenes de trabajo</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
