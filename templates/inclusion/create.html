@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('crear_inclusion') }}">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre completo</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cedula" class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="cedula" name="cedula" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tiene_discapacidad" class="form-label">¿Tiene alguna discapacidad?</label>
+                            <select class="form-control" id="tiene_discapacidad" name="tiene_discapacidad" required>
+                                <option value="">Seleccione una opción</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo que se oculta o muestra dinámicamente -->
+                        <div class="mb-3" id="campo_incapacidad" style="display: none;">
+                            <label for="incapacidad" class="form-label">Tipo de discapacidad</label>
+                            <select class="form-control" id="incapacidad" name="incapacidad">
+                                <option value="">Seleccione una opción</option>
+                                <option value="Visual">Visual</option>
+                                <option value="Auditiva">Auditiva</option>
+                                <option value="Física">Física</option>
+                                <option value="Intelectual">Intelectual</option>
+                                <option value="Psicosocial">Psicosocial</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('lista_inclusiones') }}" class="btn btn-secondary me-md-2">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Guardar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- JavaScript para mostrar/ocultar tipo de discapacidad -->
+                    <script>
+                        const selectDiscapacidad = document.getElementById('tiene_discapacidad');
+                        const campoIncapacidad = document.getElementById('campo_incapacidad');
+                        const selectIncapacidad = document.getElementById('incapacidad');
+
+                        selectDiscapacidad.addEventListener('change', function () {
+                            if (this.value === 'Si') {
+                                campoIncapacidad.style.display = 'block';
+                                selectIncapacidad.setAttribute('required', true);
+                            } else {
+                                campoIncapacidad.style.display = 'none';
+                                selectIncapacidad.removeAttribute('required');
+                                selectIncapacidad.value = '';
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
