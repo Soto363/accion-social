@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Adulto Mayor | Sistema de Inclusión{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Ficha de Caracterización del Adulto Mayor</h4>
+                </div>
+                <div class="card-body">
+                    <form id="adultoMayorForm" method="POST" action="{{ url_for('nuevo_adulto_mayor') }}" novalidate>
+                        <!-- Sección I: Información General -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">I. INFORMACIÓN GENERAL</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="fecha_aplicacion" class="form-label">Fecha de aplicación</label>
+                                        <input type="date" class="form-control" id="fecha_aplicacion" name="fecha_aplicacion" required>
+                                        <div class="invalid-feedback">Por favor ingrese la fecha de aplicación</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="tipo_identificacion" class="form-label">Tipo de identificación</label>
+                                        <select class="form-select" id="tipo_identificacion" name="tipo_identificacion" required>
+                                            <option value="" selected disabled>Seleccione...</option>
+                                            <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
+                                            <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                                            <option value="Pasaporte">Pasaporte</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                        <div class="invalid-feedback">Seleccione un tipo de identificación</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4" id="otroTipoIdentificacionGroup" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="otro_tipo_identificacion" class="form-label">Especifique otro tipo</label>
+                                        <input type="text" class="form-control" id="otro_tipo_identificacion" name="otro_tipo_identificacion">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Continuar con los demás campos de información general -->
+                            <!-- Ejemplo para nombre y cédula -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="nombre" class="form-label">Nombres y apellidos</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                        <div class="invalid-feedback">Ingrese los nombres completos</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="cedula" class="form-label">Número de identificación</label>
+                                        <input type="text" class="form-control" id="cedula" name="cedula" required>
+                                        <div class="invalid-feedback">Ingrese un número de identificación válido</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Más campos de información general... -->
+                        </div>
+                        
+                        <!-- Sección II: Información de Contacto -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">II. INFORMACIÓN DE CONTACTO</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="numero_contacto" class="form-label">Número de contacto</label>
+                                        <input type="tel" class="form-control" id="numero_contacto" name="numero_contacto" required>
+                                        <div class="invalid-feedback">Ingrese un número de contacto válido</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estado_civil" class="form-label">Estado civil</label>
+                                        <select class="form-select" id="estado_civil" name="estado_civil" required>
+                                            <option value="" selected disabled>Seleccione...</option>
+                                            <option value="Soltero/a">Soltero/a</option>
+                                            <option value="Casado/a">Casado/a</option>
+                                            <option value="Viudo/a">Viudo/a</option>
+                                            <option value="Divorciado/a">Divorciado/a</option>
+                                            <option value="Unión libre">Unión libre</option>
+                                        </select>
+                                        <div class="invalid-feedback">Seleccione un estado civil</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Secciones restantes del formulario (III a XI) -->
+                        <!-- Cada sección seguiría el mismo patrón -->
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ url_for('lista_adultos_mayores') }}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times-circle me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('adultoMayorForm');
+    
+    // Mostrar/ocultar campo "Otro tipo de identificación"
+    const tipoIdentificacion = document.getElementById('tipo_identificacion');
+    const otroTipoGroup = document.getElementById('otroTipoIdentificacionGroup');
+    
+    tipoIdentificacion.addEventListener('change', function() {
+        if (this.value === 'Otro') {
+            otroTipoGroup.style.display = 'block';
+            document.getElementById('otro_tipo_identificacion').setAttribute('required', '');
+        } else {
+            otroTipoGroup.style.display = 'none';
+            document.getElementById('otro_tipo_identificacion').removeAttribute('required');
+        }
+    });
+    
+    // Validación en tiempo real
+    const camposRequeridos = form.querySelectorAll('[required]');
+    camposRequeridos.forEach(campo => {
+        campo.addEventListener('input', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+            }
+        });
+    });
+    
+    // Validación al enviar
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+        
+        // Validar todos los campos requeridos
+        camposRequeridos.forEach(campo => {
+            if (!campo.value) {
+                campo.classList.add('is-invalid');
+                isValid = false;
+            } else if (!campo.checkValidity()) {
+                campo.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            // Enviar formulario via AJAX
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else if (data.errors) {
+                    // Mostrar errores del servidor
+                    Object.keys(data.errors).forEach(fieldName => {
+                        const field = document.querySelector(`[name="${fieldName}"]`);
+                        if (field) {
+                            field.classList.add('is-invalid');
+                            const errorElement = field.nextElementSibling;
+                            if (errorElement && errorElement.classList.contains('invalid-feedback')) {
+                                errorElement.textContent = data.errors[fieldName];
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al enviar el formulario');
+            });
+        } else {
+            // Desplazarse al primer error
+            const primerError = form.querySelector('.is-invalid');
+            if (primerError) {
+                primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form id="inclusionForm" method="POST" action="{{ url_for('crear_inclusion') }}" novalidate>
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre completo</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" 
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,100}" required>
+                            <div class="invalid-feedback" id="nombreError">
+                                Solo letras y espacios (3-100 caracteres)
+                            </div>
+                        </div>
+
+                        <!-- Cédula -->
+                        <div class="mb-3">
+                            <label for="cedula" class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="cedula" name="cedula" 
+                                pattern="\d{6,}" title="Mínimo 6 dígitos numéricos" required>
+                            <div class="invalid-feedback" id="cedulaError">
+                                Mínimo 6 dígitos numéricos requeridos
+                            </div>
+                        </div>
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
+                            <div class="invalid-feedback" id="emailError">
+                                Formato inválido (ejemplo: usuario@dominio.com)
+                            </div>
+                        </div>
+
+                        <!-- Discapacidad -->
+                        <div class="mb-3">
+                            <label for="tiene_discapacidad" class="form-label">¿Tiene discapacidad?</label>
+                            <select class="form-control" id="tiene_discapacidad" name="tiene_discapacidad" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                            <div class="invalid-feedback" id="discapacidadError">
+                                Seleccione una opción
+                            </div>
+                        </div>
+
+                        <!-- Tipo Discapacidad (condicional) -->
+                        <div class="mb-3" id="campo_incapacidad" style="display: none;">
+                            <label for="incapacidad" class="form-label">Tipo de discapacidad</label>
+                            <select class="form-control" id="incapacidad" name="incapacidad">
+                                <option value="">Seleccione...</option>
+                                <option value="Visual">Visual</option>
+                                <option value="Auditiva">Auditiva</option>
+                                <option value="Física">Física</option>
+                                <option value="Intelectual">Intelectual</option>
+                                <option value="Psicosocial">Psicosocial</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                            <div class="invalid-feedback" id="incapacidadError">
+                                Seleccione un tipo de discapacidad
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('lista_inclusiones') }}" class="btn btn-secondary me-md-2">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('inclusionForm');
+    const campos = {
+        nombre: document.getElementById('nombre'),
+        cedula: document.getElementById('cedula'),
+        email: document.getElementById('email'),
+        tiene_discapacidad: document.getElementById('tiene_discapacidad'),
+        incapacidad: document.getElementById('incapacidad')
+    };
+
+    // Mostrar/ocultar campo discapacidad
+    campos.tiene_discapacidad.addEventListener('change', function() {
+        const campoIncapacidad = document.getElementById('campo_incapacidad');
+        if (this.value === 'Si') {
+            campoIncapacidad.style.display = 'block';
+            campos.incapacidad.setAttribute('required', '');
+        } else {
+            campoIncapacidad.style.display = 'none';
+            campos.incapacidad.removeAttribute('required');
+            campos.incapacidad.value = '';
+        }
+    });
+
+    // Validación en tiempo real
+    function validarCampo(campo, tipo) {
+        const valor = campo.value.trim();
+        const errorElement = document.getElementById(`${campo.id}Error`);
+        
+        // Limpiar estados previos
+        campo.classList.remove('is-invalid', 'is-valid');
+        
+        let valido = false;
+        let mensajeError = '';
+        
+        switch(tipo) {
+            case 'nombre':
+                valido = valor.length >= 3 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor);
+                mensajeError = valido ? '' : 'El nombre debe tener al menos 3 caracteres y solo letras';
+                break;
+                
+            case 'cedula':
+                valido = /^\d{6,}$/.test(valor);
+                mensajeError = valido ? '' : 'La cédula debe tener al menos 6 dígitos numéricos';
+                break;
+                
+            case 'email':
+                valido = valor === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+                mensajeError = valido ? '' : 'Formato de email inválido';
+                break;
+                
+            case 'discapacidad':
+                valido = valor !== '';
+                mensajeError = valido ? '' : 'Seleccione una opción';
+                break;
+                
+            case 'incapacidad':
+                valido = campos.tiene_discapacidad.value !== 'Si' || valor !== '';
+                mensajeError = valido ? '' : 'Seleccione un tipo de discapacidad';
+                break;
+        }
+        
+        // Aplicar feedback visual
+        if (valor !== '') {
+            campo.classList.add(valido ? 'is-valid' : 'is-invalid');
+            if (errorElement) errorElement.textContent = mensajeError;
+        }
+        
+        return valido;
+    }
+
+    // Configurar eventos de validación en tiempo real
+    campos.nombre.addEventListener('input', () => validarCampo(campos.nombre, 'nombre'));
+    campos.cedula.addEventListener('input', () => validarCampo(campos.cedula, 'cedula'));
+    campos.email.addEventListener('input', () => validarCampo(campos.email, 'email'));
+    campos.tiene_discapacidad.addEventListener('change', () => {
+        validarCampo(campos.tiene_discapacidad, 'discapacidad');
+        if (campos.tiene_discapacidad.value === 'Si') {
+            validarCampo(campos.incapacidad, 'incapacidad');
+        }
+    });
+    campos.incapacidad.addEventListener('change', () => validarCampo(campos.incapacidad, 'incapacidad'));
+
+    // Envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        let isValid = true;
+
+        // Validar todos los campos
+        isValid &= validarCampo(campos.nombre, 'nombre');
+        isValid &= validarCampo(campos.cedula, 'cedula');
+        isValid &= validarCampo(campos.email, 'email');
+        isValid &= validarCampo(campos.tiene_discapacidad, 'discapacidad');
+        
+        if (campos.tiene_discapacidad.value === 'Si') {
+            isValid &= validarCampo(campos.incapacidad, 'incapacidad');
+        }
+
+        if (!isValid) {
+            const primerError = document.querySelector('.is-invalid');
+            if (primerError) primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch("{{ url_for('crear_inclusion') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                },
+                body: formData
+            });
+
+            const contentType = response.headers.get('content-type');
+            let data;
+
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                throw new Error(text.includes('<html') ? 
+                    'Error en el servidor (respuesta HTML inesperada)' : text);
+            }
+
+            if (!response.ok) {
+                if (data.errors) {
+                    // Mostrar errores de validación del servidor
+                    Object.keys(data.errors).forEach(key => {
+                        if (campos[key]) {
+                            campos[key].classList.add('is-invalid');
+                            document.getElementById(`${key}Error`).textContent = data.errors[key];
+                        }
+                    });
+                }
+                throw new Error(data.error || 'Error en la solicitud');
+            }
+
+            if (data.success) {
+                window.location.href = data.redirect;
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            if (error.message.includes('cédula ya está registrada')) {
+                campos.cedula.classList.add('is-invalid');
+                document.getElementById('cedulaError').textContent = error.message;
+            } else {
+                alert('Error: ' + (error.message || 'Ocurrió un error al enviar el formulario'));
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
