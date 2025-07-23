@@ -1,66 +1,79 @@
 {% extends "base.html" %}
 
-{% block title %}Editar Adulto Mayor | Sistema de Inclusión{% endblock %}
-
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2>Editar Adulto Mayor</h2>
-        </div>
-        <div class="col-md-6 text-end">
-            <a href="{{ url_for('ver_adulto_mayor', id=inclusion.id) }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Cancelar
-            </a>
-        </div>
-    </div>
+<div class="container mt-4">
+    <h2>Lista de Adultos Mayores</h2>
 
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">{{ inclusion.nombre }}</h4>
+    <form method="get" action="{{ url_for('lista_adultos_mayores') }}" class="row g-2 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o identificación" value="{{ busqueda }}">
         </div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('editar_adulto_mayor', id=inclusion.id) }}">
-                <!-- Sección I: Información General -->
-                <div class="mb-4">
-                    <h5 class="border-bottom pb-2">I. INFORMACIÓN GENERAL</h5>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombres y apellidos</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" 
-                                       value="{{ inclusion.nombre }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="cedula" class="form-label">Número de identificación</label>
-                                <input type="text" class="form-control" id="cedula" name="cedula" 
-                                       value="{{ inclusion.cedula }}" required readonly>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Más campos editables... -->
-                    
-                </div>
-                
-                <!-- Secciones restantes del formulario -->
-                
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Guardar Cambios
-                    </button>
-                </div>
-            </form>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
-    </div>
+        <div class="col-md-2">
+            <a href="{{ url_for('nuevo_adulto_mayor') }}" class="btn btn-success">Nuevo</a>
+        </div>
+    </form>
+
+    {% if adultos.items %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Identificación</th>
+                    <th>Edad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for adulto in adultos.items %}
+                <tr>
+                    <td>{{ adulto.nombres_apellidos }}</td>
+                    <td>{{ adulto.numero_identificacion }}</td>
+                    <td>{{ adulto.edad or '' }}</td>
+                    <td>
+                        <a href="{{ url_for('ver_adulto_mayor', id=adulto.id) }}" class="btn btn-info btn-sm">Ver</a>
+                        <a href="{{ url_for('editar_adulto_mayor', id=adulto.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{{ url_for('eliminar_adulto_mayor', id=adulto.id) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este registro?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        <nav>
+            <ul class="pagination">
+                {% if adultos.has_prev %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('lista_adultos_mayores', page=adultos.prev_num, busqueda=busqueda) }}">Anterior</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {% for num in adultos.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if num %}
+                        {% if num == adultos.page %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('lista_adultos_mayores', page=num, busqueda=busqueda) }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if adultos.has_next %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('lista_adultos_mayores', page=adultos.next_num, busqueda=busqueda) }}">Siguiente</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <p>No hay registros para mostrar.</p>
+    {% endif %}
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-// Scripts para manejar la edición (similar al de nuevo.html)
-</script>
 {% endblock %}
