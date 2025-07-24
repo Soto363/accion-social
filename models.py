@@ -9,7 +9,7 @@ class FichaAdultoMayor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fecha_aplicacion = db.Column(db.Date, default=date.today)
     tipo_identificacion = db.Column(db.String(50), nullable=False)
-   # otro_tipo_identificacion = db.Column(db.String(50), nullable=True)
+    otro_tipo_identificacion = db.Column(db.String(50), nullable=True)
     numero_identificacion = db.Column(db.String(50), unique=True, nullable=False)
     nombres_apellidos = db.Column(db.String(100), nullable=False)
     sexo = db.Column(db.String(20), nullable=True)

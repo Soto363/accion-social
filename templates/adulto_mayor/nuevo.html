@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}Nuevo Adulto Mayor | Sistema de
-caracterizacion{% endblock %} {% block content %}
+{% extends "base.html" %} 
+{% block title %}Nuevo Adulto Mayor | Sistema de caracterización{% endblock %} 
+{% block content %}
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-md-12">
@@ -8,327 +9,377 @@ caracterizacion{% endblock %} {% block content %}
           <h4 class="mb-0">Ficha de Caracterización del Adulto Mayor</h4>
         </div>
         <div class="card-body">
-          <form
-            id="adultoMayorForm"
-            method="POST"
-            action="{{ url_for('nuevo_adulto_mayor') }}"
-            novalidate
-          >
-            <!-- Sección I: Información General -->
-            <div class="mb-4">
-              <h5 class="border-bottom pb-2">I. INFORMACIÓN GENERAL</h5>
+          <!-- Mensajes de alerta -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
 
+          <form id="adultoMayorForm" method="POST" action="{{ url_for('nuevo_adulto_mayor') }}" novalidate>
+
+            <!-- SECCIÓN I: INFORMACIÓN GENERAL -->
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2 text-primary">I. INFORMACIÓN GENERAL</h5>
+              
               <div class="row">
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label for="fecha_aplicacion" class="form-label"
-                      >Fecha de aplicación</label
-                    >
-                    <input
-                      type="date"
-                      class="form-control"
-                      id="fecha_aplicacion"
-                      name="fecha_aplicacion"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Por favor ingrese la fecha de aplicación
-                    </div>
+                    <label for="fecha_aplicacion" class="form-label">Fecha de aplicación *</label>
+                    <input type="date" class="form-control" id="fecha_aplicacion" name="fecha_aplicacion" required>
+                    <div class="invalid-feedback">Por favor ingrese la fecha de aplicación</div>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label for="tipo_identificacion" class="form-label"
-                      >Tipo de identificación</label
-                    >
-                    <select
-                      class="form-select"
-                      id="tipo_identificacion"
-                      name="tipo_identificacion"
-                      required
-                    >
+                    <label for="tipo_identificacion" class="form-label">Tipo de identificación *</label>
+                    <select class="form-select" id="tipo_identificacion" name="tipo_identificacion" required>
                       <option value="" selected disabled>Seleccione...</option>
-                      <option value="Cédula de ciudadanía">
-                        Cédula de ciudadanía
-                      </option>
-                      <option value="Cédula de Extranjería">
-                        Cédula de Extranjería
-                      </option>
+                      <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
+                      <option value="Cédula de Extranjería">Cédula de Extranjería</option>
                       <option value="Pasaporte">Pasaporte</option>
                       <option value="Otro">Otro</option>
                     </select>
-                    <div class="invalid-feedback">
-                      Seleccione un tipo de identificación
-                    </div>
+                    <div class="invalid-feedback">Seleccione un tipo de identificación</div>
                   </div>
                 </div>
 
-                <div
-                  class="col-md-4"
-                  id="otroTipoIdentificacionGroup"
-                  style="display: none"
-                >
+                <div class="col-md-4" id="otroTipoIdentificacionGroup" style="display: none">
                   <div class="mb-3">
-                    <label for="otro_tipo_identificacion" class="form-label"
-                      >Especifique otro tipo</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="otro_tipo_identificacion"
-                      name="otro_tipo_identificacion"
-                    />
+                    <label for="otro_tipo_identificacion" class="form-label">¿Cuál?</label>
+                    <input type="text" class="form-control" id="otro_tipo_identificacion" name="otro_tipo_identificacion">
+                    <div class="invalid-feedback">Por favor, especifique el tipo de identificación.</div>
                   </div>
                 </div>
               </div>
 
-              <!-- Continuar con los demás campos de información general -->
-              <!-- Ejemplo para nombre y cédula -->
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="nombre" class="form-label"
-                      >Nombres y apellidos</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="nombre"
-                      name="nombre"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Ingrese los nombres completos
-                    </div>
+                    <label for="nombres_apellidos" class="form-label">Nombres y apellidos *</label>
+                    <input type="text" class="form-control" id="nombres_apellidos" name="nombres_apellidos" required>
+                    <div class="invalid-feedback">Ingrese los nombres y apellidos completos</div>
                   </div>
                 </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="numero_identificacion" class="form-label">Número de identificación *</label>
+                    <input type="text" class="form-control" id="numero_identificacion" name="numero_identificacion" 
+                           pattern="[0-9]+" title="Solo se permiten números" required>
+                    <div class="invalid-feedback">Ingrese un número de identificación válido (solo números)</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label for="fecha_nacimiento" class="form-label"
-                      >Fecha de nacimiento</label
-                    >
-                    <input
-                      type="date"
-                      class="form-control"
-                      id="fecha_nacimiento"
-                      name="fecha_nacimiento"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Ingrese la fecha de nacimiento
-                    </div>
+                    <label for="sexo" class="form-label">Sexo</label>
+                    <select class="form-select" id="sexo" name="sexo">
+                      <option value="" selected>Seleccione...</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Femenino">Femenino</option>
+                      <option value="Otro">Otro</option>
+                    </select>
                   </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4" id="otroSexoGroup" style="display: none;">
                   <div class="mb-3">
-                    <label for="cedula" class="form-label"
-                      >Número de identificación</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="cedula"
-                      name="cedula"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Ingrese un número de identificación válido
-                    </div>
+                    <label for="sexo_otro" class="form-label">¿Cuál?</label>
+                    <input type="text" class="form-control" id="sexo_otro" name="sexo_otro">
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                    <div class="invalid-feedback">Ingrese la fecha de nacimiento</div>
                   </div>
                 </div>
               </div>
 
-              <!-- Más campos de información general... -->
-            </div>
-            <div class="col-md-4">
-              <div class="mb-3">
-                <label for="sexo" class="form-label">Sexo</label>
-                <select class="form-select" id="sexo" name="sexo" required>
-                  <option value="" selected disabled>Seleccione...</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Femenino">Femenino</option>
-                  <option value="Otro">Otro</option>
-                  <option value="Prefiere no decir">Prefiere no decir</option>
-                </select>
-                <div class="invalid-feedback">Seleccione el sexo</div>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="mb-3">
+                    <label for="edad" class="form-label">Edad</label>
+                    <input type="number" class="form-control" id="edad" name="edad" readonly min="60">
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="mb-3">
+                    <label for="zona_residencia" class="form-label">Zona de residencia</label>
+                    <select class="form-select" id="zona_residencia" name="zona_residencia">
+                      <option value="" selected>Seleccione...</option>
+                      <option value="Urbana">Urbana</option>
+                      <option value="Rural">Rural</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="mb-3">
+                    <label for="barrio_vereda" class="form-label">Barrio/Vereda</label>
+                    <input type="text" class="form-control" id="barrio_vereda" name="barrio_vereda">
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="mb-3">
+                    <label for="direccion_residencia" class="form-label">Dirección de residencia</label>
+                    <input type="text" class="form-control" id="direccion_residencia" name="direccion_residencia">
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Sección II: Información de Contacto -->
+            <!-- SECCIÓN II: INFORMACIÓN DE CONTACTO -->
             <div class="mb-4">
-              <h5 class="border-bottom pb-2">II. INFORMACIÓN DE CONTACTO</h5>
-
+              <h5 class="border-bottom pb-2 text-primary">II. INFORMACIÓN DE CONTACTO</h5>
+              
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="numero_contacto" class="form-label"
-                      >Número de contacto</label
-                    >
-                    <input
-                      type="tel"
-                      class="form-control"
-                      id="numero_contacto"
-                      name="numero_contacto"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Ingrese un número de contacto válido
-                    </div>
+                    <label for="numero_contacto" class="form-label">Número de contacto</label>
+                    <input type="tel" class="form-control" id="numero_contacto" name="numero_contacto">
                   </div>
                 </div>
+
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="estado_civil" class="form-label"
-                      >Estado civil</label
-                    >
-                    <select
-                      class="form-select"
-                      id="estado_civil"
-                      name="estado_civil"
-                      required
-                    >
-                      <option value="" selected disabled>Seleccione...</option>
+                    <label for="estado_civil" class="form-label">Estado civil</label>
+                    <select class="form-select" id="estado_civil" name="estado_civil">
+                      <option value="" selected>Seleccione...</option>
                       <option value="Soltero/a">Soltero/a</option>
                       <option value="Casado/a">Casado/a</option>
                       <option value="Viudo/a">Viudo/a</option>
                       <option value="Divorciado/a">Divorciado/a</option>
                       <option value="Unión libre">Unión libre</option>
                     </select>
-                    <div class="invalid-feedback">
-                      Seleccione un estado civil
-                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="convivencia" class="form-label">¿Con quién convive?</label>
+                    <select class="form-select" id="convivencia" name="convivencia">
+                      <option value="" selected>Seleccione...</option>
+                      <option value="Solo/a">Solo/a</option>
+                      <option value="Familia">Familia</option>
+                      <option value="Cónyuge">Cónyuge</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6" id="otroConvivenciaGroup" style="display: none;">
+                  <div class="mb-3">
+                    <label for="convivencia_otro" class="form-label">¿Con quién más?</label>
+                    <input type="text" class="form-control" id="convivencia_otro" name="convivencia_otro">
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Secciones restantes del formulario (III a XI) -->
-            <!-- Cada sección seguiría el mismo patrón -->
+            <!-- SECCIÓN III: INFORMACIÓN SOCIOECONÓMICA Y EDUCATIVA -->
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2 text-primary">III. INFORMACIÓN SOCIOECONÓMICA Y EDUCATIVA</h5>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="ocupacion" class="form-label">Ocupación</label>
+                    <input type="text" class="form-control" id="ocupacion" name="ocupacion">
+                  </div>
+                </div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-              <a
-                href="{{ url_for('lista_adultos_mayores') }}"
-                class="btn btn-secondary me-md-2"
-              >
-                <i class="fas fa-times-circle me-1"></i> Cancelar
-              </a>
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-1"></i> Guardar
-              </button>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="escolaridad" class="form-label">Nivel de escolaridad</label>
+                    <select class="form-select" id="escolaridad" name="escolaridad">
+                      <option value="" selected>Seleccione...</option>
+                      <option value="Sin escolaridad">Sin escolaridad</option>
+                      <option value="Primaria incompleta">Primaria incompleta</option>
+                      <option value="Primaria completa">Primaria completa</option>
+                      <option value="Bachillerato incompleto">Bachillerato incompleto</option>
+                      <option value="Bachillerato completo">Bachillerato completo</option>
+                      <option value="Técnico">Técnico</option>
+                      <option value="Tecnológico">Tecnológico</option>
+                      <option value="Universitario">Universitario</option>
+                      <option value="Postgrado">Postgrado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">¿Sabe leer y escribir?</label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="sabe_leer_escribir" id="sabe_leer_escribir_si" value="1">
+                      <label class="form-check-label" for="sabe_leer_escribir_si">Sí</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="sabe_leer_escribir" id="sabe_leer_escribir_no" value="0">
+                      <label class="form-check-label" for="sabe_leer_escribir_no">No</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">¿Ha recibido educación informal?</label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="educacion_informal" id="educacion_informal_si" value="1">
+                      <label class="form-check-label" for="educacion_informal_si">Sí</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="educacion_informal" id="educacion_informal_no" value="0">
+                      <label class="form-check-label" for="educacion_informal_no">No</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" id="educacionInformalGroup" style="display: none;">
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="educacion_informal_cual" class="form-label">¿Cuál educación informal ha recibido?</label>
+                    <textarea class="form-control" id="educacion_informal_cual" name="educacion_informal_cual" rows="3"></textarea>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Botones de acción -->
+            <div class="row">
+              <div class="col-12">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">Cancelar</button>
+                  <button type="submit" class="btn btn-primary">Guardar Información</button>
+                </div>
+              </div>
+            </div>
+
           </form>
         </div>
       </div>
     </div>
   </div>
 </div>
-{% endblock %} {% block scripts %}
+
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("adultoMayorForm");
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar/ocultar campo "Otro" para tipo de identificación
+    const tipoIdentificacion = document.getElementById('tipo_identificacion');
+    const otroTipoGroup = document.getElementById('otroTipoIdentificacionGroup');
+    const otroTipoInput = document.getElementById('otro_tipo_identificacion');
 
-    const campos = {
-      fecha: document.getElementById("fecha_aplicacion"),
-      fecha_nacimiento: document.getElementById("fecha_nacimiento"),
-    };
-
-    // Establecer la fecha actual como valor por defecto
-    const hoy = new Date().toISOString().split("T")[0];
-    campos.fecha.value = hoy;
-    campos.fecha_nacimiento.max = hoy;
-
-    // Mostrar/ocultar campo "Otro tipo de identificación"
-    const tipoIdentificacion = document.getElementById("tipo_identificacion");
-    const otroTipoGroup = document.getElementById(
-      "otroTipoIdentificacionGroup"
-    );
-
-    tipoIdentificacion.addEventListener("change", function () {
-      if (this.value === "Otro") {
-        otroTipoGroup.style.display = "block";
-        document
-          .getElementById("otro_tipo_identificacion")
-          .setAttribute("required", "");
-      } else {
-        otroTipoGroup.style.display = "none";
-        document
-          .getElementById("otro_tipo_identificacion")
-          .removeAttribute("required");
-      }
-    });
-
-    // Validación en tiempo real
-    const camposRequeridos = form.querySelectorAll("[required]");
-    camposRequeridos.forEach((campo) => {
-      campo.addEventListener("input", function () {
-        if (this.checkValidity()) {
-          this.classList.remove("is-invalid");
-          this.classList.add("is-valid");
+    tipoIdentificacion.addEventListener('change', function() {
+        if (this.value === 'Otro') {
+            otroTipoGroup.style.display = 'block';
+            otroTipoInput.required = true;
         } else {
-          this.classList.remove("is-valid");
+            otroTipoGroup.style.display = 'none';
+            otroTipoInput.required = false;
+            otroTipoInput.value = '';
         }
-      });
     });
 
-    // Validación al enviar
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      let isValid = true;
+    // Mostrar/ocultar campo "Otro" para sexo
+    const sexo = document.getElementById('sexo');
+    const otroSexoGroup = document.getElementById('otroSexoGroup');
 
-      // Validar todos los campos requeridos
-      camposRequeridos.forEach((campo) => {
-        if (!campo.value) {
-          campo.classList.add("is-invalid");
-          isValid = false;
-        } else if (!campo.checkValidity()) {
-          campo.classList.add("is-invalid");
-          isValid = false;
+    sexo.addEventListener('change', function() {
+        if (this.value === 'Otro') {
+            otroSexoGroup.style.display = 'block';
+        } else {
+            otroSexoGroup.style.display = 'none';
+            document.getElementById('sexo_otro').value = '';
         }
-      });
+    });
 
-      if (isValid) {
-        // Enviar formulario via AJAX
-        const formData = new FormData(form);
+    // Mostrar/ocultar campo "Otro" para convivencia
+    const convivencia = document.getElementById('convivencia');
+    const otroConvivenciaGroup = document.getElementById('otroConvivenciaGroup');
 
-        fetch(form.action, {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              window.location.href = data.redirect;
-            } else if (data.errors) {
-              // Mostrar errores del servidor
-              Object.keys(data.errors).forEach((fieldName) => {
-                const field = document.querySelector(`[name="${fieldName}"]`);
-                if (field) {
-                  field.classList.add("is-invalid");
-                  const errorElement = field.nextElementSibling;
-                  if (
-                    errorElement &&
-                    errorElement.classList.contains("invalid-feedback")
-                  ) {
-                    errorElement.textContent = data.errors[fieldName];
-                  }
-                }
-              });
+    convivencia.addEventListener('change', function() {
+        if (this.value === 'Otro') {
+            otroConvivenciaGroup.style.display = 'block';
+        } else {
+            otroConvivenciaGroup.style.display = 'none';
+            document.getElementById('convivencia_otro').value = '';
+        }
+    });
+
+    // Mostrar/ocultar campo de especificación para educación informal
+    const educacionInformalSi = document.getElementById('educacion_informal_si');
+    const educacionInformalNo = document.getElementById('educacion_informal_no');
+    const educacionInformalGroup = document.getElementById('educacionInformalGroup');
+
+    function toggleEducacionInformal() {
+        if (educacionInformalSi.checked) {
+            educacionInformalGroup.style.display = 'block';
+        } else {
+            educacionInformalGroup.style.display = 'none';
+            document.getElementById('educacion_informal_cual').value = '';
+        }
+    }
+
+    educacionInformalSi.addEventListener('change', toggleEducacionInformal);
+    educacionInformalNo.addEventListener('change', toggleEducacionInformal);
+
+    // Calcular edad automáticamente basada en fecha de nacimiento
+    const fechaNacimiento = document.getElementById('fecha_nacimiento');
+    const edadInput = document.getElementById('edad');
+
+    fechaNacimiento.addEventListener('change', function() {
+        if (this.value) {
+            const today = new Date();
+            const birthDate = new Date(this.value);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
             }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("Ocurrió un error al enviar el formulario");
-          });
-      } else {
-        // Desplazarse al primer error
-        const primerError = form.querySelector(".is-invalid");
-        if (primerError) {
-          primerError.scrollIntoView({ behavior: "smooth", block: "center" });
+            
+            edadInput.value = age;
+        } else {
+            edadInput.value = '';
         }
-      }
     });
-  });
+
+    // Establecer fecha actual por defecto
+    const fechaAplicacion = document.getElementById('fecha_aplicacion');
+    if (!fechaAplicacion.value) {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        fechaAplicacion.value = formattedDate;
+    }
+
+    // Validación del formulario
+    const form = document.getElementById('adultoMayorForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
 </script>
+
 {% endblock %}
